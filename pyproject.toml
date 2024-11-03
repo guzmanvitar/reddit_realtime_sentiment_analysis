@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "x-realtime-sentiment-analysis"
+version = "0.1.0"
+description = "Real time sentiment analysis on the X platform"
+authors = ["guzmanvitar <guzmanvitar@gmail.com>"]
+packages = [
+    { include = "src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+logging = "^0.4.9.6"
+pathlib = "^1.0.1"
+requests = "^2.32.3"
+pandas = "^2.2.3"
+seaborn = "^0.13.2"
+matplotlib = "^3.9.2"
+sqlalchemy = "^2.0.36"
+psycopg2 = "^2.9.10"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+ipykernel = "^6.29.5"
+isort = "^5.13.2"
+flake8 = "^7.1.1"
+ipdb = "^0.13.13"
+pre-commit = "^4.0.1"
+ipython = "^8.29.0"
+jupyterlab = "^4.3.0"
+
+[tool.black]
+line-length = 100
+preview = true
+
+[tool.isort]
+atomic = true
+profile = "black"
+skip = [".venv"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

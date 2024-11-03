@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 100
+exclude = .venv
+ignore =
+    # in conflict with black (and pep8):
+    E203,E266,W503,F407

@@ -1,0 +1,48 @@
+{
+    //
+    // Set correct python path to venv's one
+    //
+    "python.pythonPath": ".venv/bin/python3",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python3",
+    //
+    // Very optional: type checking. Remove the line if your project doesn't really use or respect
+    // type hints.
+    //
+    "python.analysis.typeCheckingMode": "basic",
+    //
+    // Hide .venv from explorer and searchbar
+    //
+    "files.watcherExclude": {
+        "**/.venv/**": true
+    },
+    "search.exclude": {
+        "**/.venv/": true
+    },
+    //
+    // Linting and formatting
+    //
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "editor.rulers": [
+        100 // if changing line length, also do it in .flake8 and pyproject.toml's [tool.black] section
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "prettier.tabWidth": 2,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    //
+    // Jupyter
+    //
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "jupyter.generateSVGPlots": true,
+    //
+    // OTHER
+    //
+    "autoDocstring.docstringFormat": "google",
+    "jupyter.interactiveWindow.textEditor.executeSelection": true,
+}

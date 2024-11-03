@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "njpwerner.autodocstring",
+        "mhutchie.git-graph",
+        "dvirtz.parquet-viewer",
+        "redhat.vscode-yaml",
+    ]
+}
