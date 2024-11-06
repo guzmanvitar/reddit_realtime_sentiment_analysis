@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "x-realtime-sentiment-analysis"
+name = "reddit-realtime-sentiment-analysis"
 version = "0.1.0"
-description = "Real time sentiment analysis on the X platform"
+description = "Real time sentiment analysis on reddit"
 authors = ["guzmanvitar <guzmanvitar@gmail.com>"]
 packages = [
     { include = "src" }
@@ -17,6 +17,7 @@ seaborn = "^0.13.2"
 matplotlib = "^3.9.2"
 sqlalchemy = "^2.0.36"
 psycopg2 = "^2.9.10"
+praw = "^7.8.1"
 
 
 [tool.poetry.group.dev.dependencies]
