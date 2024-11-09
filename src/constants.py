@@ -14,6 +14,9 @@ DATA = ROOT / "data"
 SECRETS = ROOT / ".secrets"
 
 DATA_RAW = DATA / "raw"
+DATA_POSTS = DATA_RAW / "posts"
+DATA_COMMENTS = DATA_RAW / "comments"
+
 DATA_READY = DATA / "ready"
 DATA_INTERIM = DATA / "interim"
 
