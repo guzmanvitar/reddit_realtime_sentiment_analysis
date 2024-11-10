@@ -6,7 +6,7 @@ import time
 import praw
 from kafka import KafkaProducer
 
-from src.constants import DATA_COMMENTS, DATA_POSTS, SECRETS
+from src.constants import DATA_COMMENTS, DATA_POSTS, SECRETS, STREAMER_TAGS
 from src.logger_definition import get_logger
 
 logger = get_logger(__file__)
@@ -19,13 +19,12 @@ class RedditCommentStreamer:
 
     def __init__(
         self,
-        subreddit,
-        query_tags,
-        post_save_dir,
-        comment_save_dir,
-        secrets_path,
-        kafka_server,
-        kafka_topic,
+        subreddit: str,
+        query_tags: list[str],
+        post_save_dir: str,
+        comment_save_dir: str,
+        secrets_path: str,
+        kafka_server: str,
     ):
         """
         Initializes the RedditCommentStreamer with API credentials loaded from a JSON file,
@@ -37,6 +36,7 @@ class RedditCommentStreamer:
             post_save_dir (str): Directory where matching posts will be saved.
             comment_save_dir (str): Directory where matching comments will be saved.
             secrets_path (str): Path to the JSON file with Reddit API credentials.
+            kafka_server(str): Kafka server address.
         """
         credentials = self._load_credentials(secrets_path)
         self.reddit = praw.Reddit(
@@ -49,7 +49,6 @@ class RedditCommentStreamer:
         self.post_save_dir = post_save_dir
         self.comment_save_dir = comment_save_dir
         self.tracked_post_ids = {}  # Maps post IDs to their matching tags
-        self.kafka_topic = kafka_topic
         self.kafka_producer = KafkaProducer(
             bootstrap_servers=kafka_server, value_serializer=lambda v: json.dumps(v).encode("utf-8")
         )
@@ -57,7 +56,7 @@ class RedditCommentStreamer:
         self._ensure_directory_exists(post_save_dir)
         self._ensure_directory_exists(comment_save_dir)
 
-    def _load_credentials(self, path):
+    def _load_credentials(self, path: str) -> dict:
         """
         Loads Reddit API credentials from a JSON file.
 
@@ -70,7 +69,7 @@ class RedditCommentStreamer:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    def _ensure_directory_exists(self, directory):
+    def _ensure_directory_exists(self, directory: str):
         """
         Ensures that the specified directory exists, creating it if necessary.
 
@@ -80,7 +79,7 @@ class RedditCommentStreamer:
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-    def fetch_and_save_matching_posts(self, limit=50):
+    def fetch_and_save_matching_posts(self, limit: int = 100):
         """
         Fetches recent posts from the subreddit that contain specified tags in their titles or
         flairs, saves them, and updates the tracked_post_ids set.
@@ -118,9 +117,9 @@ class RedditCommentStreamer:
                 self.save_post(post_data, matching_tag)
                 self.tracked_post_ids[submission.id] = matching_tag
 
-    def save_post(self, post, tag):
+    def save_post(self, post: dict, tag: str):
         """
-        Saves a single post to a JSON file named with the post ID and tag.
+        Saves a single post to a JSON file named with the post ID and tag, and sends it to Kafka.
 
         Args:
             post (dict): The post data to save.
@@ -140,13 +139,14 @@ class RedditCommentStreamer:
             "created_utc": post["created_utc"],
             "text": post["title"],  # Rename "title" to "text" for Kafka
         }
-        # Send the transformed post data to Kafka
-        self.kafka_producer.send(self.kafka_topic, kafka_data)
-        logger.info("Sent post %s to Kafka topic %s", post["id"], self.kafka_topic)
+        # Send the transformed post data to a Kafka topic named after the tag
+        self.kafka_producer.send(tag, kafka_data)
+        logger.info("Sent post %s to Kafka topic '%s'", post["id"], tag)
 
-    def save_comment(self, comment, tag):
+    def save_comment(self, comment: dict, tag: str):
         """
-        Saves a single comment to a JSON file named with the comment ID and tag.
+        Saves a single comment to a JSON file named with the comment ID and tag, and sends it to
+        Kafka.
 
         Args:
             comment (dict): The comment data to save.
@@ -171,11 +171,11 @@ class RedditCommentStreamer:
             "created_utc": comment["created_utc"],
             "text": comment["body"],  # Rename "body" to "text" for Kafka
         }
-        # Send the transformed comment data to Kafka
-        self.kafka_producer.send(self.kafka_topic, kafka_data)
-        logger.info("Sent comment %s to Kafka topic %s", comment["id"], self.kafka_topic)
+        # Send the transformed comment data to a Kafka topic named after the tag
+        self.kafka_producer.send(tag, kafka_data)
+        logger.info("Sent comment %s to Kafka topic '%s'", comment["id"], tag)
 
-    def start_streaming(self, interval=60):
+    def start_streaming(self, interval: int = 2):
         """
         Starts streaming new posts and comments, saving only those matching the specified tags.
 
@@ -208,7 +208,7 @@ class RedditCommentStreamer:
                 self.fetch_and_save_matching_posts()
 
     def close(self):
-        """Ensure all messages are sent and shutts down kafka producer"""
+        """Ensure all messages are sent and shuts down the Kafka producer."""
         self.kafka_producer.flush()
         self.kafka_producer.close()
 
@@ -221,7 +221,7 @@ if __name__ == "__main__":
         "--subreddit", type=str, default="all", help="Subreddit to monitor (default: all)"
     )
     parser.add_argument(
-        "--query_tags", nargs="+", required=True, help="List of tags to filter posts by (required)"
+        "--query_tags", nargs="+", default=STREAMER_TAGS, help="List of tags to filter posts by"
     )
     parser.add_argument(
         "--interval",
@@ -254,12 +254,6 @@ if __name__ == "__main__":
         default=os.getenv("KAFKA_SERVER", "kafka:9092"),
         help="Kafka server address (default: kafka:9092)",
     )
-    parser.add_argument(
-        "--kafka_topic",
-        type=str,
-        default=os.getenv("KAFKA_TOPIC", "reddit_stream"),
-        help="Kafka topic to push data to (default: reddit_stream)",
-    )
 
     args = parser.parse_args()
 
@@ -270,7 +264,6 @@ if __name__ == "__main__":
         comment_save_dir=args.comment_save_dir,
         secrets_path=args.secrets_path,
         kafka_server=args.kafka_server,
-        kafka_topic=args.kafka_topic,
     )
     try:
         streamer.start_streaming(interval=args.interval)

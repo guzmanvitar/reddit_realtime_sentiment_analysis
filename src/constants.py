@@ -38,3 +38,6 @@ TABLE_ID = "table_id"
 DATE = "date"
 VALUE = "value"
 FULL_RESPONSE = "full_response"
+
+# Streamer
+STREAMER_TAGS = ["trump", "kamala"]

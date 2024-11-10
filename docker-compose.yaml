@@ -48,13 +48,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/streamer/Dockerfile
-    command:
-      [
-        "python",
-        "src/streamer/reddit_streamer.py",
-        "--query_tags",
-        "trump donaldtrump kamala kamalaharris",
-      ]
+    command: ["python", "src/streamer/reddit_streamer.py"]
     restart: on-failure
     environment:
       - KAFKA_SERVER=kafka:9092
@@ -63,7 +57,5 @@ services:
       kafka:
         condition: service_healthy
     volumes:
-      - ./data/raw/comments:/home/reddit_realtime_sentiment_analysis/data/raw/comments
-      - ./data/raw/posts:/home/reddit_realtime_sentiment_analysis/data/raw/posts
       - ./.secrets:/home/reddit_realtime_sentiment_analysis/.secrets
       - ./logs:/home/reddit_realtime_sentiment_analysis/logs
