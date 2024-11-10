@@ -23,7 +23,7 @@ logging.captureWarnings(capture=True)
 
 
 def get_logger(file_or_name: str, level: str = "INFO") -> logging.Logger:
-    """Gets a logger the given name or one derived from the given file path.
+    """Gets a logger with the given name or one derived from the given file path.
 
     Usually, you'll call this method like `get_logger(__file__)`, and the logger's name will be the
     file's stem.
@@ -39,4 +39,10 @@ def get_logger(file_or_name: str, level: str = "INFO") -> logging.Logger:
     name = Path(file_or_name).stem
     logger = logging.getLogger(name)
     logger.setLevel(level)
+
+    # Add the handlers if they are not already added
+    if not logger.hasHandlers():
+        logger.addHandler(console)
+        logger.addHandler(file)
+
     return logger
