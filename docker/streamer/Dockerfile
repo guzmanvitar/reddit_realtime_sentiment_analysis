@@ -1,4 +1,4 @@
-FROM python:3.12.3
+FROM python:3.11.10
 
 # Export env variables
 ENV PROJECT reddit_realtime_sentiment_analysis

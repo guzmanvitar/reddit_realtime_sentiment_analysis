@@ -11,10 +11,10 @@ reproducible in any teammate's machine.
 
 I use `poetry` to to install and manage dependencies. I also use `pyenv` (see [here](https://github.com/pyenv/pyenv-installer)) to manage python versions.
 
-The codebase uses `Python 3.12.3`. So after installing `pyenv` and `poetry` run
+The codebase uses `Python 3.11.10`. So after installing `pyenv` and `poetry` run
 ```bash
-pyenv install 3.12.3
-pyenv shell 3.12.3
+pyenv install 3.11.10
+pyenv shell 3.11.10
 pyenv which python | xargs poetry env use
 poetry config virtualenvs.in-project true
 poetry install

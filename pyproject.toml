@@ -8,7 +8,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 logging = "^0.4.9.6"
 pathlib = "^1.0.1"
 requests = "^2.32.3"
@@ -20,6 +20,9 @@ psycopg2 = "^2.9.10"
 praw = "^7.8.1"
 six = "^1.16.0"
 kafka-python-ng = "^2.2.3"
+pyspark = "^3.5.3"
+torch = "2.0.1"
+transformers = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
