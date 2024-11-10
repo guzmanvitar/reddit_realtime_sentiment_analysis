@@ -1,0 +1,69 @@
+version: '3'
+
+services:
+  ### KAFKA SERVICES ###
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_TICK_TIME=2000  # Equivalent to ZOOKEEPER_TICK_TIME
+
+  kafka:
+    build:
+      context: .
+      dockerfile: ./docker/kafka/Dockerfile  # Custom Dockerfile with kcat installation
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_MESSAGE_MAX_BYTES=1048576
+      - KAFKA_SOCKET_REQUEST_MAX_BYTES=104857600
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    healthcheck:
+      test: ["CMD", "./kafka-healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  ### STREAMER SERVICE ###
+  reddit_streamer:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./docker/streamer/Dockerfile
+    command:
+      [
+        "python",
+        "src/streamer/reddit_streamer.py",
+        "--query_tags",
+        "trump donaldtrump kamala kamalaharris",
+      ]
+    restart: on-failure
+    environment:
+      - KAFKA_SERVER=kafka:9092
+      - KAFKA_TOPIC=reddit_stream
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./data/raw/comments:/home/reddit_realtime_sentiment_analysis/data/raw/comments
+      - ./data/raw/posts:/home/reddit_realtime_sentiment_analysis/data/raw/posts
+      - ./.secrets:/home/reddit_realtime_sentiment_analysis/.secrets
+      - ./logs:/home/reddit_realtime_sentiment_analysis/logs

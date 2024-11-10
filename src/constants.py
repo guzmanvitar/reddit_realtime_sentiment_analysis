@@ -22,6 +22,7 @@ DATA_INTERIM = DATA / "interim"
 
 MODELS = ROOT / "models"
 
+LOGS.mkdir(exist_ok=True, parents=True)
 DATA_RAW.mkdir(exist_ok=True, parents=True)
 DATA_READY.mkdir(exist_ok=True, parents=True)
 DATA_INTERIM.mkdir(exist_ok=True, parents=True)
