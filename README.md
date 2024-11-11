@@ -1,15 +1,11 @@
-# Real Time Sentiment Analysis on the X platform
-## 1. Getting started with the repo
+# Reddit Real Time Sentiment Analysis
+## 1. Local development
 
 ### Installing virtual environments and getting dependencies
 
 1. **Poetry**
 
-Before we start to code, we need to set up a virtual environment to handle the project dependencies separately
-from our system's Python packages. This will ensure that whatever we run on our local machine will be
-reproducible in any teammate's machine.
-
-I use `poetry` to to install and manage dependencies. I also use `pyenv` (see [here](https://github.com/pyenv/pyenv-installer)) to manage python versions.
+This repo uses `poetry` to install and manage dependencies. We also use `pyenv` (see [here](https://github.com/pyenv/pyenv-installer)) to manage python versions.
 
 The codebase uses `Python 3.11.10`. So after installing `pyenv` and `poetry` run
 ```bash
@@ -29,10 +25,7 @@ Once inside the shell we'll also run
 ```
 to setup git hooks.
 
-1. **Docker & Kubernetes**
-
-Going one step further from poetry lock files, we want to have our code containerized to really ensure a deterministic
-build, no matter where we execute. This repo uses docker to containerize the code and kubernetes to orechestrate containers.
+2. **Docker & Kubernetes**
 
 To locally test the kubernetes cluster you can install `minikube` (see [here](https://minikube.sigs.k8s.io/docs/start/)).
 
