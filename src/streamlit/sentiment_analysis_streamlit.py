@@ -131,12 +131,17 @@ class SentimentDashboard:
                     negative = row["Negative Count"]
                     total = positive + negative
                     if total > 0:
-                        # Calculate the proportional width of positive and negative sections
+                        # Check if the legend exists and only add label if it's not there
+                        legend_texts = (
+                            [legend.get_text() for legend in ax.get_legend().get_texts()]
+                            if ax.get_legend()
+                            else []
+                        )
                         ax.bar(
                             row["Tag"],
                             positive,
                             color="green",
-                            label="Positive" if i == 0 else "",
+                            label="Positive" if "Positive" not in legend_texts else None,
                             width=0.6,
                         )
                         ax.bar(
@@ -144,7 +149,7 @@ class SentimentDashboard:
                             negative,
                             bottom=positive,
                             color="red",
-                            label="Negative" if i == 0 else "",
+                            label="Negative" if "Negative" not in legend_texts else None,
                             width=0.6,
                         )
 

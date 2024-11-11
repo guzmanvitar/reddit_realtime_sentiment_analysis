@@ -31,7 +31,6 @@ repos:
       - id: check-symlinks
       - id: check-vcs-permalinks
       - id: debug-statements
-      - id: detect-aws-credentials
       - id: check-added-large-files
       - id: check-toml
         types: [toml]
@@ -41,7 +40,7 @@ repos:
       - id: no-commit-to-branch
       - id: trailing-whitespace
         types: [text]
-        stages: [commit, push, manual]
+        stages: [pre-commit, pre-push, manual]
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.4.0
     hooks:
