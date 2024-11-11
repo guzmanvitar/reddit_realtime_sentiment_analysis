@@ -21,13 +21,14 @@ COPY pyproject.toml $PROJECT_DIR/
 COPY ./src/streamer/reddit_streamer.py $PROJECT_DIR/src/streamer/reddit_streamer.py
 COPY ./src/constants.py $PROJECT_DIR/src/constants.py
 COPY ./src/logger_definition.py $PROJECT_DIR/src/logger_definition.py
+COPY ./src/utils.py $PROJECT_DIR/src/utils.py
 
 # Add execute permissions
 RUN chmod +x $PROJECT_DIR/src/streamer/reddit_streamer.py
 
 # Install poetry dependencies
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+    && poetry install --without dev --without ml --no-interaction --no-ansi
 
 # # expose port for jupyter lab
 # EXPOSE 8787

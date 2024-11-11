@@ -52,10 +52,28 @@ services:
     restart: on-failure
     environment:
       - KAFKA_SERVER=kafka:9092
-      - KAFKA_TOPIC=reddit_stream
     depends_on:
       kafka:
         condition: service_healthy
     volumes:
       - ./.secrets:/home/reddit_realtime_sentiment_analysis/.secrets
       - ./logs:/home/reddit_realtime_sentiment_analysis/logs
+
+  ### SENTIMENT ANALYSIS ###
+  spark_kafka_sentiment:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./docker/spark_processing/Dockerfile
+    command:
+        [
+        "spark-submit",
+        "--packages",
+        "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3",
+        "src/sentiment_analysis/spark_kafka_sentiment.py"
+        ]
+    restart: always
+    environment:
+      - KAFKA_SERVER=kafka:9092
+    depends_on:
+      - reddit_streamer

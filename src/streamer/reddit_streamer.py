@@ -8,6 +8,7 @@ from kafka import KafkaProducer
 
 from src.constants import DATA_COMMENTS, DATA_POSTS, SECRETS, STREAMER_TAGS
 from src.logger_definition import get_logger
+from src.utils import create_kafka_topic
 
 logger = get_logger(__file__)
 
@@ -55,6 +56,9 @@ class RedditCommentStreamer:
 
         self._ensure_directory_exists(post_save_dir)
         self._ensure_directory_exists(comment_save_dir)
+
+        for tag in self.query_tags:
+            create_kafka_topic(tag)
 
     def _load_credentials(self, path: str) -> dict:
         """
