@@ -6,7 +6,7 @@ from pyspark.sql.functions import col, from_json, struct, to_json, udf
 from pyspark.sql.types import FloatType, StringType
 from transformers import pipeline
 
-from src.constants import STREAMER_TAGS
+from src.constants import PREDICTIONS_TOPIC, STREAMER_TAGS
 from src.schemas import streamer_schema
 from src.utils import create_kafka_topic
 
@@ -130,7 +130,7 @@ def main() -> None:
     parser.add_argument(
         "--output_topic",
         type=str,
-        default="sentiment_predictions",
+        default=PREDICTIONS_TOPIC,
         help="Output Kafka topic for sentiment predictions",
     )
 

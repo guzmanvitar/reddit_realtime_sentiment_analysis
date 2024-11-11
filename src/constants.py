@@ -27,17 +27,8 @@ DATA_RAW.mkdir(exist_ok=True, parents=True)
 DATA_READY.mkdir(exist_ok=True, parents=True)
 DATA_INTERIM.mkdir(exist_ok=True, parents=True)
 
-
-# Postgres connection, as defined by sqlalchemy formating, and by user, password and name defined in
-# docker compose service.
-POSTGRESDB_CON_STRING = "postgresql://admin:admin@scraping-database:5432/postgresdb"
-
-
-# Columns
-TABLE_ID = "table_id"
-DATE = "date"
-VALUE = "value"
-FULL_RESPONSE = "full_response"
-
 # Streamer
 STREAMER_TAGS = ["trump", "kamala"]
+
+# Predictions
+PREDICTIONS_TOPIC = "sentiment_predictions"

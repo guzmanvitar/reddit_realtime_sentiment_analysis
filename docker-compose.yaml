@@ -67,13 +67,36 @@ services:
       dockerfile: ./docker/spark_processing/Dockerfile
     command:
         [
-        "spark-submit",
-        "--packages",
-        "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3",
-        "src/sentiment_analysis/spark_kafka_sentiment.py"
+          "spark-submit",
+          "--packages",
+          "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3",
+          "src/sentiment_analysis/spark_kafka_sentiment.py"
         ]
     restart: always
     environment:
       - KAFKA_SERVER=kafka:9092
     depends_on:
       - reddit_streamer
+
+
+  ### VISUALIZATION ###
+  streamlit_sentiment_dashboard:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./docker/streamlit/Dockerfile
+    command:
+        [
+          "streamlit",
+          "run",
+          "src/streamlit/sentiment_analysis_streamlit.py",
+          "--server.address=0.0.0.0",
+          "--server.port=8501"
+        ]
+    restart: on-failure
+    environment:
+      - KAFKA_SERVER=kafka:9092
+    depends_on:
+      - spark_kafka_sentiment
+    ports:
+      - "8501:8501"

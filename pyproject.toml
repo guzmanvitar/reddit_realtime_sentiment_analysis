@@ -22,6 +22,8 @@ kafka-python-ng = "^2.2.3"
 pyspark = "^3.5.3"
 psycopg2-binary = "^2.9.10"
 numpy = "<2.0.0"
+confluent-kafka = "^2.6.0"
+streamlit = "^1.40.0"
 
 [tool.poetry.group.ml.dependencies]
 transformers = "^4.0.0"
@@ -29,7 +31,6 @@ torch = [
     { version = "2.0.1", markers = "sys_platform == 'darwin'" },  # macOS compatible
     { url = "https://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp311-cp311-linux_x86_64.whl", markers = "sys_platform == 'linux'" }  # Linux CPU-only version
 ]
-
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
