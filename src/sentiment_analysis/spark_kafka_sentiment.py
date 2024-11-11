@@ -1,5 +1,4 @@
 import argparse
-from typing import Any
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col, from_json, struct, to_json, udf

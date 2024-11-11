@@ -72,8 +72,8 @@ class RedditCommentStreamer:
 
     def fetch_and_save_matching_posts(self, limit=50):
         """
-        Fetches recent posts from the subreddit that contain specified tags in their titles or flairs,
-        saves them, and updates the tracked_post_ids set.
+        Fetches recent posts from the subreddit that contain specified tags in their titles or
+        flairs, saves them, and updates the tracked_post_ids set.
 
         Args:
             limit (int): The maximum number of posts to retrieve in each fetch.
