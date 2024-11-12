@@ -22,6 +22,7 @@ COPY pyproject.toml $PROJECT_DIR/
 
 # Copy python scripts
 COPY ./src $PROJECT_DIR/src
+COPY ./notebooks $PROJECT_DIR/notebooks
 
 # Create spark checkpoint folder
 RUN mkdir -p /tmp/checkpoint && chmod -R 777 /tmp/checkpoint
