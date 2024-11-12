@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: python
-          image: gcr.io/full-stack-ml-challenge/python-poetry:latest
+          image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/python-poetry-env:latest
           command:
             - jupyter
             - lab
@@ -33,22 +33,18 @@ spec:
             - --ip=0.0.0.0
             - --port=8787
             - --allow-root
-          env:
-            - name: POSTGRES_HOST
-              value: scraping-database
-            - name: POSTGRES_PORT
-              value: "5432"
-            - name: POSTGRES_USER
-              value: admin
-            - name: POSTGRES_PASSWORD
-              value: admin
-            - name: POSTGRES_DB
-              value: postgresdb
           ports:
             - containerPort: 8787
           volumeMounts:
             - name: notebooks-volume
-              mountPath: /home/fullstack_ml/notebooks
+              mountPath: /home/python_env/notebooks
+          resources:
+            limits:
+              memory: "512Mi"  # Maximum memory the container can use
+              cpu: "500m"      # Maximum CPU the container can use
+            requests:
+              memory: "256Mi"  # Guaranteed memory allocation for the container
+              cpu: "250m"      # Guaranteed CPU allocation for the container
       imagePullSecrets:
         - name: gcr-json-key
       volumes:
