@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reddit-streamer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reddit-streamer
+  template:
+    metadata:
+      labels:
+        app: reddit-streamer
+    spec:
+      containers:
+        - name: reddit-streamer
+          image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/reddit-streamer:latest
+          command: ["python", "src/streamer/reddit_streamer.py"]
+          env:
+            - name: KAFKA_SERVER
+              value: "kafka:9092"
+            - name: GOOGLE_APPLICATION_CREDENTIALS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: gcp-service-account
+                  key: gcp-credentials.json
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      imagePullSecrets:
+        - name: gcr-json-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reddit-streamer
+spec:
+  selector:
+    app: reddit-streamer
+  ports:
+    - port: 8080
+      targetPort: 8080

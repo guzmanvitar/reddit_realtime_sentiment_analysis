@@ -4,11 +4,12 @@ import os
 import time
 
 import praw
+from google.cloud import secretmanager
 from kafka import KafkaProducer
 
 from src.constants import DATA_COMMENTS, DATA_POSTS, SECRETS, STREAMER_TAGS
 from src.logger_definition import get_logger
-from src.utils import create_kafka_topic
+from src.utils import create_kafka_topic, load_gcp_credentials
 
 logger = get_logger(__file__)
 
@@ -62,7 +63,8 @@ class RedditCommentStreamer:
 
     def _load_credentials(self, path: str) -> dict:
         """
-        Loads Reddit API credentials from a JSON file.
+        Loads Reddit API credentials from a local JSON file if available. If not, retrieves
+        credentials from Google Secret Manager.
 
         Args:
             path (str): Path to the JSON file with Reddit API credentials.
@@ -70,8 +72,32 @@ class RedditCommentStreamer:
         Returns:
             dict: A dictionary containing Reddit API credentials.
         """
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        if os.path.exists(path):
+            # Attempt to load credentials from the local file
+            try:
+                with open(path, encoding="utf-8") as f:
+                    return json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValueError("Invalid JSON format in local credentials file") from e
+        else:
+            # Fallback to Google Secret Manager if the local file doesn't exist
+            try:
+                # Initialize Secret Manager client with GCP credentials
+                credentials = load_gcp_credentials()
+                client = secretmanager.SecretManagerServiceClient(credentials=credentials)
+
+                # Access the secret in Secret Manager
+                secret_name = "projects/156785002062/secrets/reddit-credentials/versions/latest"
+                response = client.access_secret_version(name=secret_name)
+
+                # Parse the secret payload
+                secret_data = response.payload.data.decode("UTF-8")
+                return json.loads(secret_data)
+
+            except Exception as e:
+                raise OSError(
+                    "Failed to load Reddit credentials from Google Secret Manager."
+                ) from e
 
     def _ensure_directory_exists(self, directory: str):
         """

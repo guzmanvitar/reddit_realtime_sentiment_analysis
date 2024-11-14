@@ -1,8 +1,8 @@
 FROM bitnami/python:3.11.10
 
 # Export env variables
-ENV PROJECT spark_kafka_sentiment
-ENV HOME /home
+ENV PROJECT=spark_kafka_sentiment
+ENV HOME=/home
 
 # Install java
 RUN apt-get update && apt-get install -y openjdk-17-jre-headless
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y openjdk-17-jre-headless
 RUN pip install poetry>=1.0.0
 
 # create a project directory inside project home
-ENV PROJECT_DIR $HOME/$PROJECT
+ENV PROJECT_DIR=$HOME/$PROJECT
 RUN mkdir $PROJECT_DIR
 
 WORKDIR $PROJECT_DIR
@@ -37,6 +37,12 @@ RUN chmod +x $PROJECT_DIR/src/sentiment_analysis/spark_kafka_sentiment.py
 # Install poetry dependencies
 RUN poetry config virtualenvs.create false \
     && poetry install --without dev --no-interaction --no-ansi
+
+# Pre-download the Kafka package to avoid re-downloading
+RUN spark-shell --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3 -i /dev/null || true
+
+# Set environment variable to preload libtorch
+ENV LD_PRELOAD=../../opt/bitnami/python/lib/python3.11/site-packages/torch/lib/libtorch_cpu.so
 
 # Set JAVA_HOME for Spark compatibility
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
