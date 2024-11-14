@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlit-sentiment-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamlit-sentiment-dashboard
+  template:
+    metadata:
+      labels:
+        app: streamlit-sentiment-dashboard
+    spec:
+      containers:
+        - name: streamlit-sentiment-dashboard
+          image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/streamlit-sentiment-dashboard:latest
+          command:
+            [
+              "streamlit",
+              "run",
+              "src/streamlit/sentiment_analysis_streamlit.py",
+              "--server.address=0.0.0.0",
+              "--server.port=8501"
+            ]
+          env:
+            - name: KAFKA_SERVER
+              value: "kafka:9092"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      imagePullSecrets:
+        - name: gcr-json-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamlit-sentiment-dashboard
+spec:
+  selector:
+    app: streamlit-sentiment-dashboard
+  ports:
+    - port: 8501
+      targetPort: 8501
+      protocol: TCP

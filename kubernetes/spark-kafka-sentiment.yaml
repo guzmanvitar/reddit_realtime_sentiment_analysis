@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-kafka-sentiment-config
+data:
+  KAFKA_SERVER: "kafka:9092"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spark-sentiment-logs
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-kafka-sentiment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-kafka-sentiment
+  template:
+    metadata:
+      labels:
+        app: spark-kafka-sentiment
+    spec:
+      containers:
+        - name: spark-kafka-sentiment
+          image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/spark-kafka-sentiment:latest
+          command:
+            - spark-submit
+            - --packages
+            - org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3
+            - "--conf"
+            - "spark.executor.pyspark.memory=4g"
+            - "--conf"
+            - "spark.executor.memory=8g"
+            - "--conf"
+            - "spark.driver.memory=4g"
+            - "--conf"
+            - "spark.sql.kafkaConsumer.poll.timeout.ms=512"
+            - "--conf"
+            - "spark.python.worker.reuse=true"
+            - src/sentiment_analysis/spark_kafka_sentiment.py
+          envFrom:
+            - configMapRef:
+                name: spark-kafka-sentiment-config
+          volumeMounts:
+            - name: spark-sentiment-logs
+              mountPath: /home/reddit_realtime_sentiment_analysis/logs
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+      volumes:
+        - name: spark-sentiment-logs
+          persistentVolumeClaim:
+            claimName: spark-sentiment-logs
+      imagePullSecrets:
+        - name: gcr-json-key
+      restartPolicy: Always
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: spark-kafka-sentiment-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: spark-kafka-sentiment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-kafka-sentiment
+spec:
+  selector:
+    app: spark-kafka-sentiment
+  ports:
+    - name: spark-sentiment-port
+      port: 4040
+      targetPort: 4040
