@@ -30,6 +30,10 @@ spec:
       labels:
         app: spark-kafka-sentiment
     spec:
+      initContainers:
+        - name: wait-for-service
+          image: busybox
+          command: ['sh', '-c', 'until nc -z "kafka:9092"; do echo waiting for service; sleep 2; done']
       containers:
         - name: spark-kafka-sentiment
           image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/spark-kafka-sentiment:latest

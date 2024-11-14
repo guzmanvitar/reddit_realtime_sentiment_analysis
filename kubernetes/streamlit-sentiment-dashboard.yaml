@@ -12,6 +12,10 @@ spec:
       labels:
         app: streamlit-sentiment-dashboard
     spec:
+      initContainers:
+        - name: wait-for-service
+          image: busybox
+          command: ['sh', '-c', 'until nc -z "kafka:9092"; do echo waiting for service; sleep 2; done']
       containers:
         - name: streamlit-sentiment-dashboard
           image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/streamlit-sentiment-dashboard:latest
