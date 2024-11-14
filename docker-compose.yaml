@@ -47,7 +47,7 @@ services:
     platform: linux/x86_64
     build:
       context: .
-      dockerfile: ./docker/streamer/Dockerfile
+      dockerfile: ./docker/reddit-streamer/Dockerfile
     command: ["python", "src/streamer/reddit_streamer.py"]
     restart: on-failure
     environment:
@@ -64,7 +64,7 @@ services:
     platform: linux/x86_64
     build:
       context: .
-      dockerfile: ./docker/spark_processing/Dockerfile
+      dockerfile: ./docker/spark-kafka-sentiment/Dockerfile
     command:
         [
           "spark-submit",
@@ -84,7 +84,7 @@ services:
     platform: linux/x86_64
     build:
       context: .
-      dockerfile: ./docker/streamlit/Dockerfile
+      dockerfile: ./docker/streamlit-sentiment-dashboard/Dockerfile
     command:
         [
           "streamlit",
