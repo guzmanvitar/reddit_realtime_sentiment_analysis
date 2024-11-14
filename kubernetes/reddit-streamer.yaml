@@ -12,6 +12,10 @@ spec:
       labels:
         app: reddit-streamer
     spec:
+      initContainers:
+        - name: wait-for-service
+          image: busybox
+          command: ['sh', '-c', 'until nc -z "kafka:9092"; do echo waiting for service; sleep 2; done']
       containers:
         - name: reddit-streamer
           image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/reddit-streamer:latest

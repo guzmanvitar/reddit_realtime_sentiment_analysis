@@ -12,6 +12,10 @@ spec:
       labels:
         app: kafka
     spec:
+      initContainers:
+        - name: wait-for-service
+          image: busybox
+          command: ['sh', '-c', 'until nc -z "zookeeper:2181"; do echo waiting for service; sleep 2; done']
       containers:
         - name: kafka
           image: southamerica-east1-docker.pkg.dev/reddit-sentiment-stream-441421/reddit-sentiment-stream/kafka:latest
@@ -49,6 +53,7 @@ spec:
               cpu: "1"
       imagePullSecrets:
         - name: gcr-json-key
+      restartPolicy: Always
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
